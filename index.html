@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCC Governance Readiness Diagnostic™</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #f5f6f9;
+  --surface:      #ffffff;
+  --text:         #0f172a;
+  --muted:        #6b7280;
+  --primary:      hsl(218deg 38% 21%);
+  --primary-h:    hsl(218deg 38% 28%);
+  --teal:         #1FBFD7;
+  --radius:       18px;
+  --shadow:       0 8px 28px rgba(16,24,40,0.08);
+  --max-w:        560px;
+  --t:            0.2s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { margin: 0; background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 32px 20px; opacity: 0; transition: opacity 0.45s ease; }
+body.loaded { opacity: 1; }
+
+.container { max-width: var(--max-w); width: 100%; text-align: center; }
+
+/* Logo */
+.logo { width: 140px; margin: 0 auto 28px; display: block; }
+.logo-fallback { display: none; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 28px; }
+.logo-mark-big { width: 52px; height: 52px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+.logo-tagline { font-size: 11px; color: var(--muted); letter-spacing: 0.5px; }
+
+/* Eyebrow */
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+
+h1 { font-size: 30px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; color: var(--text); }
+.subtitle { font-size: 16px; color: var(--muted); margin: 0 auto 36px; max-width: 390px; line-height: 1.55; }
+
+/* Card */
+.card { background: var(--surface); border-radius: var(--radius); padding: 32px 28px; box-shadow: var(--shadow); text-align: left; }
+.card h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+
+/* Features */
+.feature { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f0f0f0; }
+.feature:last-of-type { border-bottom: none; }
+.feat-check { width: 22px; height: 22px; border-radius: 50%; background: rgba(31,191,215,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.feat-check svg { width: 11px; height: 11px; fill: none; stroke: var(--teal); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.feat-text { font-size: 14.5px; line-height: 1.5; color: var(--text); }
+.feat-text strong { font-weight: 600; }
+
+/* Themes */
+.themes-label { font-size: 11px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); margin: 24px 0 10px; }
+.themes { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 28px; }
+.theme-pill { background: #f5f6f9; border: 1px solid #e8eaed; border-radius: 8px; padding: 9px 12px; font-size: 12.5px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.theme-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+/* CTA */
+.btn-primary { margin-top: 4px; width: 100%; padding: 15px 0; background: var(--primary); color: #fff; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15.5px; border: none; border-radius: 12px; cursor: pointer; transition: var(--t); letter-spacing: 0.2px; }
+.btn-primary:hover { background: var(--primary-h); transform: translateY(-1px); box-shadow: 0 5px 18px rgba(10,26,47,0.18); }
+.btn-primary:active { transform: none; }
+.note { margin-top: 14px; font-size: 12.5px; color: var(--muted); text-align: center; line-height: 1.5; }
+
+/* Loading overlay */
+#loadingOverlay { position: fixed; inset: 0; background: rgba(15,23,42,0.68); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+#loadingOverlay.active { opacity: 1; pointer-events: all; }
+.loading-box { background: #fff; padding: 28px 32px; border-radius: 16px; width: 82%; max-width: 380px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.loading-text { font-size: 17px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+.loading-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.progress-bar { display: flex; gap: 4px; height: 14px; }
+.progress-block { flex: 1; background: #e5e7eb; border-radius: 4px; transition: background 0.18s ease; transform-origin: bottom; }
+.progress-block.active { background: var(--primary); animation: pulse 0.28s ease; }
+@keyframes pulse { 0% { transform: scaleY(1); } 50% { transform: scaleY(1.25); } 100% { transform: scaleY(1); } }
+
+@media (max-width: 480px) { h1 { font-size: 26px; } .card { padding: 26px 18px; } .themes { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <img src="logo.png" class="logo" alt="CCC Consultancy Group"
+       onerror="this.style.display='none'; document.getElementById('lf').style.display='flex';">
+  <div class="logo-fallback" id="lf">
+    <div class="logo-mark-big">CCC</div>
+    <div class="logo-tagline">Consultancy Group Ltd</div>
+  </div>
+
+  <div class="eyebrow">Advisory Diagnostic Tool</div>
+  <h1>Governance Readiness Diagnostic™</h1>
+  <p class="subtitle">A structured, scenario-based assessment of your firm's governance maturity across six regulatory dimensions.</p>
+
+  <div class="card">
+    <h2>What to Expect</h2>
+
+    <div class="feature">
+      <div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="1,6 4,10 11,2"/></svg></div>
+      <div class="feat-text"><strong>36 scenario-based questions</strong> — six per governance theme</div>
+    </div>
+    <div class="feature">
+      <div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="1,6 4,10 11,2"/></svg></div>
+      <div class="feat-text"><strong>No right or wrong answers</strong> — each option describes an observable reality; select the one that best reflects your firm today</div>
+    </div>
+    <div class="feature">
+      <div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="1,6 4,10 11,2"/></svg></div>
+      <div class="feat-text"><strong>Instant maturity results</strong> — score breakdown, how each score was determined, and specific recommendations per theme</div>
+    </div>
+    <div class="feature">
+      <div class="feat-check"><svg viewBox="0 0 12 12"><polyline points="1,6 4,10 11,2"/></svg></div>
+      <div class="feat-text"><strong>Approximately 5–7 minutes</strong></div>
+    </div>
+
+    <div class="themes-label">Six governance themes assessed</div>
+    <div class="themes">
+      <div class="theme-pill">Board Oversight</div>
+      <div class="theme-pill">Accountability</div>
+      <div class="theme-pill">Risk Management</div>
+      <div class="theme-pill">Compliance</div>
+      <div class="theme-pill">Control Environment</div>
+      <div class="theme-pill">Culture &amp; Conduct</div>
+    </div>
+
+    <button class="btn-primary" id="startBtn">Begin Diagnostic</button>
+    <p class="note">Accurate responses produce more useful results. Answer as your firm operates today, not as it aspires to.</p>
+  </div>
+
+</div>
+
+<div id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-text">Loading your diagnostic</div>
+    <div class="loading-sub" id="loadSub">Preparing questions…</div>
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => document.body.classList.add('loaded'));
+window.addEventListener('pageshow', e => {
+  const ov = document.getElementById('loadingOverlay');
+  ov.classList.remove('active');
+  if (e.persisted) { ov.style.transition = 'none'; requestAnimationFrame(() => { ov.offsetHeight; ov.style.transition = ''; }); }
+});
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  const ov  = document.getElementById('loadingOverlay');
+  const bar = document.getElementById('progressBar');
+  const sub = document.getElementById('loadSub');
+  const N = 20; let p = 0;
+  bar.innerHTML = '';
+  for (let i = 0; i < N; i++) { const b = document.createElement('div'); b.className = 'progress-block'; bar.appendChild(b); }
+  const blocks = bar.querySelectorAll('.progress-block');
+  ov.classList.add('active');
+  const msgs = ['Preparing questions…', 'Setting up scoring…', 'Almost ready…']; let mi = 0;
+  const iv = setInterval(() => {
+    p += 8;
+    if (p > 35 && mi < 1) { mi++; sub.textContent = msgs[mi]; }
+    if (p > 70 && mi < 2) { mi++; sub.textContent = msgs[mi]; }
+    const f = Math.floor((Math.min(p,100)/100)*N);
+    blocks.forEach((b,i) => b.classList.toggle('active', i < f));
+    if (p >= 100) { clearInterval(iv); setTimeout(() => window.location.href='survey.html', 200); }
+  }, 85);
+});
+</script>
+</body>
+</html>

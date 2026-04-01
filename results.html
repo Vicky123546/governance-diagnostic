@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Results — CCC Governance Readiness Diagnostic™</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f5f6f9; --surface: #ffffff; --text: #0f172a; --muted: #6b7280;
+  --primary: hsl(218deg 38% 21%); --primary-h: hsl(218deg 38% 28%);
+  --teal: #1FBFD7; --border: #e5e7eb;
+  --shadow: 0 8px 28px rgba(16,24,40,0.07);
+  --c1: #DC2626; --c2: #D97706; --c3: #2563EB; --c4: #0DAACC;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; opacity: 0; transition: opacity 0.45s ease; }
+body.loaded { opacity: 1; }
+
+/* ── HEADER ── */
+.topbar { background: var(--primary); padding: 13px 20px; display: flex; align-items: center; gap: 10px; }
+.tb-mark { width: 28px; height: 28px; background: var(--teal); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--primary); }
+.tb-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.78); }
+
+/* ── HERO ── */
+.hero { background: var(--primary); padding: 44px 20px 52px; text-align: center; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 500px; height: 200px; background: radial-gradient(ellipse, rgba(31,191,215,0.12) 0%, transparent 65%); pointer-events: none; }
+.hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+.hero h1 { font-size: clamp(24px, 4vw, 34px); font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.2; }
+
+/* Score ring */
+.ring-wrap { width: 116px; height: 116px; margin: 28px auto 16px; position: relative; }
+.ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 9; }
+.ring-fill { fill: none; stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1.1s cubic-bezier(0.34,1.56,0.64,1); }
+.ring-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-num { font-size: 30px; font-weight: 700; color: #fff; line-height: 1; }
+.ring-denom { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+.hero-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 16px; border-radius: 30px; font-size: 13px; font-weight: 600; margin-bottom: 18px; }
+.hero-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.hero-headline { font-size: clamp(15px, 2.5vw, 18px); font-weight: 600; color: rgba(255,255,255,0.9); max-width: 500px; margin: 0 auto 12px; }
+.hero-body { font-size: 14px; color: rgba(255,255,255,0.58); max-width: 520px; margin: 0 auto; line-height: 1.65; }
+
+/* ── CONTENT ── */
+.page { max-width: 860px; margin: 0 auto; padding: 36px 18px 80px; }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 28px; }
+.leg-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* Radar */
+.chart-card { background: var(--surface); border-radius: 18px; padding: 28px 24px; box-shadow: var(--shadow); border: 1px solid #eceef2; margin-bottom: 28px; }
+.card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.card-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; }
+.radar-wrap { max-width: 380px; margin: 0 auto; }
+
+/* Score strip */
+.score-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
+@media (max-width: 540px) { .score-strip { grid-template-columns: repeat(2, 1fr); } }
+.score-tile { background: var(--surface); border-radius: 14px; padding: 18px 16px; box-shadow: var(--shadow); border: 1px solid #eceef2; border-top: 4px solid; text-align: center; }
+.tile-name { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; }
+.tile-score { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.tile-label { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; display: inline-block; }
+
+/* Section detail cards */
+.sec-heading { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.sec-subhead { font-size: 12.5px; color: var(--muted); margin-bottom: 16px; }
+.sec-cards { display: flex; flex-direction: column; gap: 14px; }
+
+.sec-card { background: var(--surface); border-radius: 16px; border: 1px solid #eceef2; box-shadow: var(--shadow); overflow: hidden; opacity: 0; transform: translateY(14px); transition: opacity 0.35s ease, transform 0.35s ease; }
+.sec-card.show { opacity: 1; transform: translateY(0); }
+
+.sec-card-head { padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; cursor: pointer; user-select: none; }
+.sec-card-left { display: flex; flex-direction: column; gap: 4px; }
+.sec-card-name { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+.sec-card-title { font-size: 15.5px; font-weight: 700; color: var(--text); }
+.sec-card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.sec-score-big { font-size: 26px; font-weight: 700; line-height: 1; }
+.sec-mat-badge { font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+.chevron { width: 20px; height: 20px; fill: none; stroke: var(--muted); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.25s ease; flex-shrink: 0; }
+.sec-card.open .chevron { transform: rotate(180deg); }
+
+.sec-card-body { padding: 0 22px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.25s ease; }
+.sec-card.open .sec-card-body { max-height: 800px; padding: 0 22px 22px; }
+
+.sec-divider { height: 1px; background: var(--border); margin-bottom: 18px; }
+
+/* Score breakdown */
+.breakdown-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.breakdown-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.br-row { display: flex; align-items: center; gap: 10px; }
+.br-q { font-size: 12.5px; color: var(--muted); flex: 1; line-height: 1.4; }
+.br-score { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.br-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.br-val { font-size: 12.5px; font-weight: 600; }
+
+/* Explanation & Reco */
+.exp-block { background: #f8f9fc; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+.exp-label { font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+.exp-text { font-size: 13.5px; line-height: 1.65; color: #374151; }
+.reco-block { border-radius: 10px; padding: 14px 16px; border-left: 3px solid; }
+.reco-label { font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 7px; }
+.reco-text { font-size: 13.5px; line-height: 1.65; color: #374151; }
+
+/* Q score labels */
+.score-label-1 { color: var(--c1); }
+.score-label-2 { color: var(--c2); }
+.score-label-3 { color: var(--c3); }
+.score-label-4 { color: var(--c4); }
+
+/* Actions */
+.actions { display: flex; gap: 10px; justify-content: center; margin-top: 36px; flex-wrap: wrap; }
+.btn-print { padding: 12px 26px; background: var(--primary); color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-print:hover { background: var(--primary-h); }
+.btn-restart { padding: 12px 26px; background: transparent; border: 2px solid var(--border); border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; transition: 0.2s; }
+.btn-restart:hover { border-color: rgba(10,26,47,0.3); color: var(--text); }
+
+.footer { text-align: center; padding: 18px 20px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+
+@media print {
+  body { opacity: 1 !important; }
+  .actions { display: none; }
+  .sec-card { break-inside: avoid; }
+  .sec-card-body { max-height: none !important; padding: 0 22px 22px !important; }
+  .chevron { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-mark">CCC</div>
+  <div class="tb-label">CCC Consultancy Group — Governance Readiness Diagnostic</div>
+</div>
+
+<div class="hero" id="hero">
+  <div class="hero-eyebrow">Your Diagnostic Results</div>
+  <h1>Governance &amp; Regulatory<br>Readiness Assessment</h1>
+  <div class="ring-wrap">
+    <svg viewBox="0 0 116 116">
+      <circle class="ring-bg" cx="58" cy="58" r="50"/>
+      <circle class="ring-fill" id="ringFill" cx="58" cy="58" r="50" stroke-dasharray="314.2" stroke-dashoffset="314.2"/>
+    </svg>
+    <div class="ring-inner">
+      <div class="ring-num" id="ringNum">—</div>
+      <div class="ring-denom">/ 4.0</div>
+    </div>
+  </div>
+  <div class="hero-badge" id="heroBadge">—</div>
+  <div class="hero-headline" id="heroHL"></div>
+  <div class="hero-body" id="heroBody"></div>
+</div>
+
+<div class="page">
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--c1)"></div>1 — Initial</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--c2)"></div>2 — Developing</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--c3)"></div>3 — Established</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--c4)"></div>4 — Optimised</div>
+  </div>
+
+  <!-- Radar -->
+  <div class="chart-card">
+    <div class="card-title">Maturity Profile</div>
+    <div class="card-sub">Scores across all six governance themes (scale: 1–4)</div>
+    <div class="radar-wrap"><canvas id="radarChart"></canvas></div>
+  </div>
+
+  <!-- Score tiles -->
+  <div class="score-strip" id="scoreTiles"></div>
+
+  <!-- Detail cards -->
+  <div class="sec-heading">Detailed Results by Theme</div>
+  <div class="sec-subhead">Select any section to see your score breakdown, how it was determined, and recommended next steps.</div>
+  <div class="sec-cards" id="secCards"></div>
+
+  <div class="actions">
+    <button class="btn-print" onclick="beforePrint(); window.print()">Print / Save as PDF</button>
+    <button class="btn-restart" onclick="restart()">Retake Diagnostic</button>
+  </div>
+</div>
+
+<div class="footer">CCC Consultancy Group Ltd &nbsp;·&nbsp; UK expertise. Global perspective. Local impact.</div>
+
+<script src="questions.js"></script>
+<script>
+const C = { 1: 'var(--c1)', 2: 'var(--c2)', 3: 'var(--c3)', 4: 'var(--c4)' };
+const BG = { 1: 'rgba(220,38,38,0.09)', 2: 'rgba(217,119,6,0.09)', 3: 'rgba(37,99,235,0.09)', 4: 'rgba(13,170,204,0.09)' };
+const HEX = { 1: '#DC2626', 2: '#D97706', 3: '#2563EB', 4: '#0DAACC' };
+
+const ANS = JSON.parse(sessionStorage.getItem('grd_ans') || '{}');
+if (Object.keys(ANS).length < 10) window.location.href = 'index.html';
+
+const { sections: SS, overall: OV } = getAllScores(ANS);
+const OL = getMaturityLevel(OV);
+const SUM = OVERALL_SUMMARIES[OL];
+
+// ── Hero ──
+document.getElementById('ringNum').textContent = OV.toFixed(1);
+const ring = document.getElementById('ringFill');
+ring.style.stroke = HEX[OL];
+const C_LEN = 314.2;
+const pct = (OV - 1) / 3;
+setTimeout(() => { ring.style.strokeDashoffset = C_LEN * (1 - pct); }, 300);
+
+const badge = document.getElementById('heroBadge');
+badge.textContent = MATURITY_LABELS[OL];
+badge.style.background = 'rgba(255,255,255,0.12)';
+badge.style.color = HEX[OL];
+
+document.getElementById('heroHL').textContent  = SUM.headline;
+document.getElementById('heroBody').textContent = SUM.body;
+
+// ── Radar ──
+const labels = SECTIONS.map(s => s.title);
+const data   = SECTIONS.map(s => parseFloat(SS[s.id].toFixed(2)));
+
+new Chart(document.getElementById('radarChart').getContext('2d'), {
+  type: 'radar',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Maturity Score',
+      data,
+      backgroundColor: 'rgba(31,191,215,0.1)',
+      borderColor: '#1FBFD7',
+      borderWidth: 2.5,
+      pointBackgroundColor: 'hsl(218deg 38% 21%)',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      pointRadius: 4.5,
+      pointHoverRadius: 7
+    }]
+  },
+  options: {
+    animation: { duration: 900, easing: 'easeInOutQuart' },
+    scales: {
+      r: {
+        min: 0, max: 4,
+        ticks: { stepSize: 1, font: { size: 11, family: 'Inter' }, color: '#9CA3AF', backdropColor: 'transparent' },
+        grid: { color: 'rgba(0,0,0,0.07)' },
+        angleLines: { color: 'rgba(0,0,0,0.07)' },
+        pointLabels: { font: { size: 12, family: 'Inter', weight: '600' }, color: '#0f172a' }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)} — ${MATURITY_LABELS[getMaturityLevel(ctx.raw)]}` },
+        bodyFont: { family: 'Inter' }, titleFont: { family: 'Inter', weight: '600' }
+      }
+    }
+  }
+});
+
+// ── Score tiles ──
+const tilesEl = document.getElementById('scoreTiles');
+SECTIONS.forEach(sec => {
+  const sc = SS[sec.id], lv = getMaturityLevel(sc);
+  const tile = document.createElement('div');
+  tile.className = 'score-tile';
+  tile.style.borderTopColor = HEX[lv];
+  tile.innerHTML = `
+    <div class="tile-name">${sec.title}</div>
+    <div class="tile-score" style="color:${HEX[lv]}">${sc.toFixed(1)}</div>
+    <div class="tile-label" style="background:${BG[lv]};color:${HEX[lv]}">${MATURITY_LABELS[lv]}</div>
+  `;
+  tilesEl.appendChild(tile);
+});
+
+// ── Section detail cards ──
+const cardsEl = document.getElementById('secCards');
+SECTIONS.forEach((sec, si) => {
+  const sc = SS[sec.id], lv = getMaturityLevel(sc);
+  const res = SECTION_RESULTS[sec.id];
+
+  const card = document.createElement('div');
+  card.className = 'sec-card';
+  card.style.borderTop = `4px solid ${HEX[lv]}`;
+
+  // Score breakdown per question
+  const brRows = sec.questions.map((q, qi) => {
+    const s = ANS[q.id] || 1;
+    const shortQ = q.text.length > 90 ? q.text.slice(0, 88) + '…' : q.text;
+    return `
+      <div class="br-row">
+        <div class="br-q">Q${qi + 1}: ${shortQ}</div>
+        <div class="br-score">
+          <div class="br-dot" style="background:${HEX[s]}"></div>
+          <div class="br-val score-label-${s}">${s}/4</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="sec-card-head" onclick="toggle(this)">
+      <div class="sec-card-left">
+        <div class="sec-card-name">Section ${si + 1}</div>
+        <div class="sec-card-title">${sec.fullTitle}</div>
+      </div>
+      <div class="sec-card-right">
+        <div>
+          <div class="sec-score-big" style="color:${HEX[lv]}">${sc.toFixed(1)}</div>
+        </div>
+        <div class="sec-mat-badge" style="background:${BG[lv]};color:${HEX[lv]}">${MATURITY_LABELS[lv]}</div>
+        <svg class="chevron" viewBox="0 0 20 20"><polyline points="4,7 10,13 16,7"/></svg>
+      </div>
+    </div>
+    <div class="sec-card-body">
+      <div class="sec-divider"></div>
+      <div class="breakdown-label">Score Breakdown</div>
+      <div class="breakdown-rows">${brRows}</div>
+      <div class="exp-block">
+        <div class="exp-label">How This Score Was Determined</div>
+        <div class="exp-text">${res.scoreExplanation[lv]}</div>
+      </div>
+      <div class="reco-block" style="border-left-color:${HEX[lv]};background:${BG[lv]}">
+        <div class="reco-label" style="color:${HEX[lv]}">Recommended Next Steps</div>
+        <div class="reco-text">${res.recommendations[lv]}</div>
+      </div>
+    </div>
+  `;
+  cardsEl.appendChild(card);
+  setTimeout(() => card.classList.add('show'), 150 + si * 90);
+});
+
+function toggle(head) {
+  const card = head.closest('.sec-card');
+  card.classList.toggle('open');
+}
+
+function beforePrint() {
+  document.querySelectorAll('.sec-card').forEach(c => c.classList.add('open'));
+}
+
+function restart() {
+  sessionStorage.removeItem('grd_ans');
+  sessionStorage.removeItem('grd_idx');
+  window.location.href = 'index.html';
+}
+
+window.addEventListener('DOMContentLoaded', () => document.body.classList.add('loaded'));
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic Questions — CCC Governance Readiness</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f6f9; --surface: #ffffff; --text: #0f172a; --muted: #6b7280;
+  --primary: hsl(218deg 38% 21%); --primary-h: hsl(218deg 38% 28%);
+  --teal: #1FBFD7; --border: #e5e7eb;
+  --shadow: 0 8px 28px rgba(16,24,40,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── TOP BAR ── */
+.topbar { background: var(--primary); padding: 13px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.tb-left { display: flex; align-items: center; gap: 10px; }
+.tb-mark { width: 28px; height: 28px; background: var(--teal); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--primary); }
+.tb-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.75); }
+.tb-counter { font-size: 13px; color: rgba(255,255,255,0.65); }
+.tb-counter span { color: #fff; font-weight: 600; }
+
+/* ── SECTION STRIP ── */
+.section-strip { background: hsl(218deg 38% 17%); padding: 10px 20px 12px; }
+.sec-name { font-size: 10.5px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 7px; }
+.progress-bar { display: flex; gap: 3px; height: 5px; }
+.pb-block { flex: 1; background: rgba(255,255,255,0.14); border-radius: 3px; transition: background 0.3s ease; }
+.pb-block.done { background: var(--teal); }
+.pb-block.current { background: rgba(31,191,215,0.6); }
+
+/* ── MAIN ── */
+main { flex: 1; max-width: 640px; width: 100%; margin: 0 auto; padding: 32px 18px 80px; }
+.q-card { background: var(--surface); border-radius: 18px; padding: 36px 32px 30px; box-shadow: var(--shadow); border: 1px solid #eceef2; }
+.q-chip { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); background: rgba(31,191,215,0.1); border-radius: 20px; padding: 4px 12px; margin-bottom: 16px; }
+.q-text { font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--text); margin-bottom: 28px; }
+
+/* ── OPTIONS ── */
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.opt-btn { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; background: var(--surface); cursor: pointer; text-align: left; width: 100%; font-family: 'Inter', sans-serif; transition: all 0.16s ease; }
+.opt-btn:hover { border-color: rgba(10,26,47,0.28); background: rgba(10,26,47,0.02); }
+.opt-btn.sel { border-color: var(--primary); background: rgba(10,26,47,0.04); }
+.opt-btn.sel .opt-letter { background: var(--primary); color: #fff; border-color: var(--primary); }
+.opt-letter { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: var(--muted); flex-shrink: 0; transition: all 0.16s ease; }
+.opt-text { font-size: 14px; line-height: 1.55; color: var(--text); padding-top: 3px; }
+
+/* ── NAV ── */
+.nav { display: flex; gap: 10px; }
+.btn-back { padding: 12px 22px; background: transparent; border: 2px solid var(--border); border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.16s ease; }
+.btn-back:hover:not(:disabled) { border-color: rgba(10,26,47,0.3); color: var(--text); }
+.btn-back:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-next { flex: 1; padding: 13px 22px; background: var(--primary); color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; opacity: 0.38; pointer-events: none; }
+.btn-next.on { opacity: 1; pointer-events: all; }
+.btn-next.on:hover { background: var(--primary-h); }
+
+@media (max-width: 480px) { .q-card { padding: 26px 16px 22px; } .q-text { font-size: 16.5px; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-mark">CCC</div>
+    <div class="tb-label">Governance Readiness Diagnostic</div>
+  </div>
+  <div class="tb-counter">Q <span id="qNum">1</span> / 36</div>
+</div>
+
+<div class="section-strip">
+  <div class="sec-name" id="secName">Section 1 of 6 — Board Oversight</div>
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<main>
+  <div class="q-card" id="qCard">
+    <div class="q-chip" id="qChip">Question 1</div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="opts"></div>
+    <div class="nav">
+      <button class="btn-back" id="btnBack" disabled>Back</button>
+      <button class="btn-next" id="btnNext">Next</button>
+    </div>
+  </div>
+</main>
+
+<script src="questions.js"></script>
+<script>
+// Flatten
+const ALL = [];
+SECTIONS.forEach((sec, si) => {
+  sec.questions.forEach((q, qi) => ALL.push({ ...q, sectionId: sec.id, sectionTitle: sec.title, sectionFull: sec.fullTitle, secIdx: si, qInSec: qi }));
+});
+const TOTAL = ALL.length; // 36
+const SEC_SIZE = 6;
+const LABELS = ['A','B','C','D'];
+
+let idx     = parseInt(sessionStorage.getItem('grd_idx') || '0');
+const ANS   = JSON.parse(sessionStorage.getItem('grd_ans') || '{}');
+let selScore = null;
+
+function buildProgressBar() {
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const b = document.createElement('div');
+    b.className = 'pb-block' + (i < idx ? ' done' : i === idx ? ' current' : '');
+    bar.appendChild(b);
+  }
+}
+
+function render() {
+  const q = ALL[idx];
+  selScore = ANS[q.id] !== undefined ? ANS[q.id] : null;
+
+  document.getElementById('qNum').textContent      = idx + 1;
+  document.getElementById('qChip').textContent     = `Question ${idx + 1} of ${TOTAL}`;
+  document.getElementById('qText').textContent     = q.text;
+  document.getElementById('secName').textContent   = `Section ${q.secIdx + 1} of 6 — ${q.sectionFull}`;
+  document.getElementById('btnBack').disabled      = idx === 0;
+
+  const btn = document.getElementById('btnNext');
+  btn.textContent = idx === TOTAL - 1 ? 'View My Results' : 'Next';
+  btn.classList.toggle('on', selScore !== null);
+
+  buildProgressBar();
+
+  const opts = document.getElementById('opts');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt-btn' + (opt.score === selScore ? ' sel' : '');
+    b.innerHTML = `<span class="opt-letter">${LABELS[i]}</span><span class="opt-text">${opt.text}</span>`;
+    b.addEventListener('click', () => pick(opt.score));
+    opts.appendChild(b);
+  });
+}
+
+function pick(score) {
+  selScore = score;
+  document.querySelectorAll('.opt-btn').forEach((b, i) => {
+    b.classList.toggle('sel', ALL[idx].options[i].score === score);
+    const letter = b.querySelector('.opt-letter');
+    letter.style.background = ALL[idx].options[i].score === score ? 'hsl(218deg 38% 21%)' : '';
+    letter.style.color = ALL[idx].options[i].score === score ? '#fff' : '';
+    letter.style.borderColor = ALL[idx].options[i].score === score ? 'hsl(218deg 38% 21%)' : '';
+  });
+  document.getElementById('btnNext').classList.add('on');
+}
+
+function next() {
+  if (selScore === null) return;
+  ANS[ALL[idx].id] = selScore;
+  sessionStorage.setItem('grd_ans', JSON.stringify(ANS));
+  if (idx < TOTAL - 1) {
+    idx++;
+    sessionStorage.setItem('grd_idx', idx);
+    animIn(); render();
+  } else {
+    sessionStorage.setItem('grd_idx', '0');
+    window.location.href = 'results.html';
+  }
+}
+
+function back() {
+  if (idx === 0) return;
+  idx--;
+  sessionStorage.setItem('grd_idx', idx);
+  animIn(); render();
+}
+
+function animIn() {
+  const c = document.getElementById('qCard');
+  c.style.cssText = 'opacity:0;transform:translateY(10px)';
+  requestAnimationFrame(() => {
+    c.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+    c.style.opacity = '1'; c.style.transform = 'translateY(0)';
+  });
+}
+
+document.getElementById('btnNext').addEventListener('click', next);
+document.getElementById('btnBack').addEventListener('click', back);
+document.addEventListener('keydown', e => {
+  const ki = ['1','2','3','4','a','b','c','d'].indexOf(e.key.toLowerCase());
+  if (ki >= 0 && ki < 4) pick(ALL[idx].options[ki % 4].score);
+  if (e.key === 'Enter' && selScore !== null) next();
+  if (e.key === 'ArrowLeft') back();
+});
+
+render();
+</script>
+</body>
+</html>
