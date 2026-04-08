@@ -111,18 +111,28 @@ body.loaded { opacity: 1; }
 .score-label-3 { color: var(--c3); }
 .score-label-4 { color: var(--c4); }
 
-/* Actions */
-.actions { display: flex; gap: 10px; justify-content: center; margin-top: 36px; flex-wrap: wrap; }
-.btn-print { padding: 12px 26px; background: var(--primary); color: #fff; border: none; border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-.btn-print:hover { background: var(--primary-h); }
-.btn-restart { padding: 12px 26px; background: transparent; border: 2px solid var(--border); border-radius: 11px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; transition: 0.2s; }
-.btn-restart:hover { border-color: rgba(10,26,47,0.3); color: var(--text); }
+/* ── CTA BLOCK ── */
+.cta-block { background: var(--primary); margin-top: 52px; padding: 56px 24px 52px; text-align: center; border-radius: 20px; }
+.cta-heading { font-size: clamp(26px, 4vw, 36px); font-weight: 700; color: #ffffff; margin-bottom: 18px; line-height: 1.2; }
+.cta-body { font-size: 15px; color: rgba(255,255,255,0.68); max-width: 500px; margin: 0 auto 36px; line-height: 1.75; }
+.cta-buttons { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.btn-cta-primary { width: 280px; padding: 16px 0; background: var(--teal); color: var(--primary); font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; letter-spacing: 0.2px; }
+.btn-cta-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-cta-secondary { width: 280px; padding: 15px 0; background: transparent; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; border: 2px solid rgba(255,255,255,0.4); border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+.btn-cta-secondary:hover { border-color: rgba(255,255,255,0.8); }
 
-.footer { text-align: center; padding: 18px 20px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+/* ── SITE FOOTER ── */
+.site-footer { text-align: center; padding: 28px 24px 24px; background: var(--bg); border-top: 1px solid var(--border); margin-top: 48px; }
+.site-footer-brand { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.site-footer-brand span { font-weight: 400; color: var(--muted); }
+.site-footer-disclaimer { font-size: 11.5px; color: var(--muted); line-height: 1.65; max-width: 480px; margin: 0 auto 14px; }
+.site-footer-restart { font-size: 12px; color: var(--muted); text-decoration: underline; background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+.site-footer-restart:hover { color: var(--text); }
 
 @media print {
   body { opacity: 1 !important; }
-  .actions { display: none; }
+  .cta-block { display: none; }
+  .site-footer { display: none; }
   .sec-card { break-inside: avoid; }
   .sec-card-body { max-height: none !important; padding: 0 22px 22px !important; }
   .chevron { display: none; }
@@ -178,14 +188,33 @@ body.loaded { opacity: 1; }
   <div class="sec-subhead">Select any section to see your score breakdown, how it was determined, and recommended next steps.</div>
   <div class="sec-cards" id="secCards"></div>
 
-  <div class="actions">
-    <button class="btn-print" onclick="beforePrint(); window.print()">Print / Save as PDF</button>
-    <button class="btn-restart" onclick="restart()">Retake Diagnostic</button>
+  <!-- CTA Block -->
+  <div class="cta-block">
+    <div class="cta-heading">Ready to close these gaps?</div>
+    <div class="cta-body">CCC Consultancy Group works with leadership teams and boards to build practical, defensible governance frameworks — without unnecessary complexity. We turn this diagnosis into a plan your board can act on and stand behind.</div>
+    <div class="cta-buttons">
+      <button class="btn-cta-primary" onclick="window.location.href='mailto:hello@cccconsultancygroup.com?subject=Governance Readiness — Request a Conversation'">Request a Conversation</button>
+      <button class="btn-cta-secondary" onclick="beforePrint(); window.print()">Download as PDF</button>
+    </div>
   </div>
+
 </div>
 
-<div class="footer">CCC Consultancy Group Ltd &nbsp;·&nbsp; UK expertise. Global perspective. Local impact.</div>
+<div class="site-footer">
+  <div class="site-footer-brand">CCC Consultancy Group Ltd <span>— UK Expertise. Global Perspective. Local Impact.</span></div>
+  <div class="site-footer-disclaimer">Results are based on self-assessment and are intended for internal governance review and board reporting purposes only.<br>© 2026 CCC Consultancy Group Ltd. All rights reserved.</div>
+  <button class="site-footer-restart" onclick="restart()">Restart Assessment</button>
+</div>
 
+<!-- Guard: redirect immediately if no survey data, before any other script runs -->
+<script>
+(function() {
+  try {
+    var ans = JSON.parse(sessionStorage.getItem('grd_ans') || '{}');
+    if (Object.keys(ans).length < 10) { window.location.replace('./index.html'); }
+  } catch(e) { window.location.replace('./index.html'); }
+})();
+</script>
 <script src="questions.js"></script>
 <script>
 const C = { 1: 'var(--c1)', 2: 'var(--c2)', 3: 'var(--c3)', 4: 'var(--c4)' };
@@ -193,7 +222,7 @@ const BG = { 1: 'rgba(220,38,38,0.09)', 2: 'rgba(217,119,6,0.09)', 3: 'rgba(37,9
 const HEX = { 1: '#DC2626', 2: '#D97706', 3: '#2563EB', 4: '#0DAACC' };
 
 const ANS = JSON.parse(sessionStorage.getItem('grd_ans') || '{}');
-if (Object.keys(ANS).length < 10) window.location.href = 'index.html';
+if (Object.keys(ANS).length < 10) window.location.replace('./index.html');
 
 const { sections: SS, overall: OV } = getAllScores(ANS);
 const OL = getMaturityLevel(OV);
